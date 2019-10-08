@@ -157,6 +157,37 @@ Take the following data and normalize it into a 3NF database. You can use the we
 | Bob         | Joe      | Horse    |            |            |            |            | No          | No           |
 | Sam         | Ginger   | Dog      | Miss Kitty | Cat        | Bubble     | Fish       | Yes         | No           |
 
+## Normalized Tables
+
+Person Table
+| id | name | fenced_yard | city_dweller |
+|----|------|-------------|--------------|
+| 1 | Jane | No | Yes |
+| 2 | Bob | No | No |
+| 3 | Sam | Yes | No |
+
+Pet Table
+
+| pet_id | id  | pet_name   | pet_type_id |
+| ------ | --- | ---------- | ----------- |
+| 1      | 1   | Ellie      | 1           |
+| 2      | 1   | Tiger      | 2           |
+| 3      | 1   | Toby       | 3           |
+| 4      | 2   | Joe        | 4           |
+| 5      | 3   | Ginger     | 1           |
+| 6      | 3   | Miss Kitty | 2           |
+| 7      | 3   | Bubble     | 5           |
+
+Pet Type Table
+
+| pet_type_id | pet_type |
+| ----------- | -------- |
+| 1           | Dog      |
+| 2           | Cat      |
+| 3           | Turtle   |
+| 4           | Horse    |
+| 5           | Fish     |
+
 ---
 
 ## Stretch Goals
@@ -168,6 +199,18 @@ Take the following data and normalize it into a 3NF database. You can use the we
 > In the WHERE clause, you can provide another list with an IN keyword this list can be the result of another SELECT query. Write a query to return a list of CustomerIDs that meet the criteria above. Pass that to the IN keyword of the WHERE clause as the list of IDs to be deleted
 
 > Use a LEFT JOIN to join the Orders table onto the Customers table and check for a NULL value in the OrderID column
+
+> Answer per spec
+> DELETE FROM customers
+> WHERE customer_id in (SELECT c.customer_id
+> FROM customers c
+> LEFT JOIN orders o
+> ON o.customer_id=c.customer_id
+> WHERE order_id is null)
+
+> Better Answer:
+> DELETE FROM customers
+> WHERE customer_id NOT IN (select distinct customer_id from orders)
 
 ## Create Database and Table
 
@@ -184,3 +227,91 @@ Take the following data and normalize it into a 3NF database. You can use the we
   - the `id` should be the primary key for the table.
   - account `name` should be unique.
   - account `budget` is required.
+
+> ## Create Database
+
+## -- PostgreSQL database dump
+
+-- Dumped from database version 12.0
+-- Dumped by pg_dump version 12.0
+
+-- Started on 2019-10-08 18:41:52
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 203 (class 1259 OID 16907)
+-- Name: accounts; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.accounts (
+id bigint NOT NULL,
+name text,
+budget numeric NOT NULL
+);
+
+ALTER TABLE public.accounts OWNER TO postgres;
+
+--
+-- TOC entry 202 (class 1259 OID 16905)
+-- Name: accounts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.accounts_id_seq
+START WITH 1
+INCREMENT BY 1
+NO MINVALUE
+NO MAXVALUE
+CACHE 1;
+
+ALTER TABLE public.accounts_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2824 (class 0 OID 0)
+-- Dependencies: 202
+-- Name: accounts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.accounts_id_seq OWNED BY public.accounts.id;
+
+--
+-- TOC entry 2688 (class 2604 OID 16910)
+-- Name: accounts id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.accounts ALTER COLUMN id SET DEFAULT nextval('public.accounts_id_seq'::regclass);
+
+--
+-- TOC entry 2690 (class 2606 OID 16917)
+-- Name: accounts accounts_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.accounts
+ADD CONSTRAINT accounts_name_key UNIQUE (name);
+
+--
+-- TOC entry 2692 (class 2606 OID 16915)
+-- Name: accounts accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.accounts
+ADD CONSTRAINT accounts_pkey PRIMARY KEY (id);
+
+-- Completed on 2019-10-08 18:41:52
+
+--
+-- PostgreSQL database dump complete
+--
